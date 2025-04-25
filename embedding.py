@@ -5,13 +5,59 @@
 # or utilized lines from AI but at my own pace
 from scipy.sparse import lil_array
 
+import re
+
 import tensorflow as tf
 from tensorflow.keras.layers import TextVectorization
 
-CONTEXT_RADIUS = 5
+CONTEXT_WINDOW = 2
 
+SPECIAL_TOKENS = {
+    'padding': '<PAD>',  # Used to pad sequences to equal length for batching
+    'capitalize': '<CAPS>',  # Marks that the next token should be capitalized
+    'separator': '<SEP>',  # Denotes the end of a sentence or section
+    'begin_output': '<BOS>',  # Indicates the beginning of the output sequence
+    'end_output': '<EOS>',  # Indicates the end of the output sequence
+    'no_space': '<NOS>',  # Marks no space between words
+}
+
+def tokenize(text):
+    token_patterns = [r"\w+", r"[^\w\s]"]
+    token_pattern = re.compile(r"\w+|[^\w\s]")
+    tokens = []
+
+    index = 0
+    while(index < len(text)):
+        next_match = token_pattern.search(text, index)
+        if next_match is None:
+            break
+        else:
+            # if next_match.start() == index and index != 0:
+                # tokens.append('<NOS>')
+            token = text[next_match.start():next_match.end()]
+            if token[0].isupper():
+                token = token.lower()
+                # tokens.append('<CAPS>')
+            tokens.append(token)
+            index = next_match.end()
+
+    # tokens.insert(0, '<CLS>')
+    # tokens.append('<SEP>')
+
+    token_integer_map = {}
+    integer_token_map = {}
+    vocabulary = set(tokens)
+    # vocabulary = vocabulary | set(SPECIAL_TOKENS.values())
+    for index, token in enumerate(vocabulary):
+        token_integer_map[token] = index
+        integer_token_map[index] = token
 
 def gen_cooccurrence_matrix(tokens, vocab_size):
+    for index, token in enumerate(tokens):
+        tokens[index] = token_integer_map[token]
+
+    return tokens, vocabulary, (token_integer_map, integer_token_map)
+
     """
     Generates the co-occurrence matrix for a list of tokens.
 
