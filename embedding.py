@@ -99,10 +99,12 @@ def tokenize(text, vocabulary=None):
 
     return tokens
 
-def process_batch_coocurrence_matrix(batch):
+def process_batch_coocurrence_matrix(batch, count):
     tokens = list(map(lambda x: token_map['int'][x], tokenize(batch.numpy()[0].decode('utf-8'), vocabulary)))
     cooccurrence_matrix = lil_array((len(vocabulary), len(vocabulary)), dtype=float)
     gen_cooccurrence_matrix(cooccurrence_matrix, tokens)
+    if count % 1000 == 0:
+        print("Batch", count, "co-occurrences counted")
     return cooccurrence_matrix.tocsr()
 
 def gen_cooccurrence_matrix(cooccurrence_matrix, tokens):
@@ -217,7 +219,7 @@ max_workers = 8
 with (ThreadPoolExecutor(max_workers=max_workers) as executor):
     futures = []
     for batch in tf_dataset:
-        futures = {executor.submit(process_batch_coocurrence_matrix, batch): batch}
+        futures = {executor.submit(process_batch_coocurrence_matrix, batch, count): batch}
         count += 1
 
         if count % max_workers == 0:
