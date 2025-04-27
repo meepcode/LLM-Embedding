@@ -104,7 +104,7 @@ def process_batch_coocurrence_matrix(batch, count):
     cooccurrence_matrix = lil_array((len(vocabulary), len(vocabulary)), dtype=float)
     gen_cooccurrence_matrix(cooccurrence_matrix, tokens)
     if count % 1000 == 0:
-        print("Batch", count, "co-occurrences counted")
+        print("Batch", count, "co-occurrences counted", flush=True)
     return cooccurrence_matrix.tocsr()
 
 def gen_cooccurrence_matrix(cooccurrence_matrix, tokens):
