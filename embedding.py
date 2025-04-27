@@ -100,7 +100,6 @@ def tokenize(text, vocabulary=None):
     return tokens
 
 def process_batch_coocurrence_matrix(batch):
-    print("Processing batch")
     tokens = list(map(lambda x: token_map['int'][x], tokenize(batch.numpy()[0].decode('utf-8'), vocabulary)))
     cooccurrence_matrix = lil_array((len(vocabulary), len(vocabulary)), dtype=float)
     gen_cooccurrence_matrix(cooccurrence_matrix, tokens)
@@ -206,7 +205,12 @@ print("Vocabulary generated")
 cooccurrence_matrix = lil_array((len(vocabulary), len(vocabulary)), dtype=float)
 
 dataset = load_dataset("wikipedia", "20220301.en", streaming=True)
-tf_dataset = dataset['train'].to_tf_dataset(columns=['text'], batch_size=1, shuffle=True).prefetch(tf.data.AUTOTUNE)
+
+def dataset_generator():
+    for datum in dataset['train']:
+        yield datum['text']
+
+tf_dataset = tf.data.Dataset.from_generator(dataset_generator, output_signature=tf.TensorSpec(shape=(), dtype=tf.string)).batch(1)
 
 count = 0
 max_workers = 8
@@ -220,7 +224,6 @@ with (ThreadPoolExecutor(max_workers=max_workers) as executor):
             for future in as_completed(futures):
                 try:
                     cooccurrence_matrix += future.result()
-                    print("Batch", count, "co-occurrences counted")
                 except Exception as e:
                     print(f"Error processing batch: {e}")
 
