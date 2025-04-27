@@ -100,7 +100,6 @@ def tokenize(text, vocabulary=None):
     return tokens
 
 def process_batch_coocurrence_matrix(batch):
-    print("Processing batch")
     tokens = list(map(lambda x: token_map['int'][x], tokenize(batch.numpy()[0].decode('utf-8'), vocabulary)))
     cooccurrence_matrix = lil_array((len(vocabulary), len(vocabulary)), dtype=float)
     gen_cooccurrence_matrix(cooccurrence_matrix, tokens)
@@ -220,7 +219,6 @@ with (ThreadPoolExecutor(max_workers=max_workers) as executor):
             for future in as_completed(futures):
                 try:
                     cooccurrence_matrix += future.result()
-                    print("Batch", count, "co-occurrences counted")
                 except Exception as e:
                     print(f"Error processing batch: {e}")
 
