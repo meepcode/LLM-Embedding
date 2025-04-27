@@ -205,7 +205,7 @@ print("Vocabulary generated")
 
 cooccurrence_matrix = lil_array((len(vocabulary), len(vocabulary)), dtype=float)
 
-dataset = load_dataset("wikipedia", "20220301.en")
+dataset = load_dataset("wikipedia", "20220301.en", streaming=True)
 tf_dataset = dataset['train'].to_tf_dataset(columns=['text'], batch_size=1, shuffle=True).prefetch(tf.data.AUTOTUNE)
 
 count = 0
