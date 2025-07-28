@@ -164,38 +164,38 @@ def create_model(coocurrence_matrix):
 # for each batch, run tokenize and update the co-occurrence matrix
 # then continue
 
-# word_freq = defaultdict(int)
-# 
-# dataset = load_dataset("wikipedia", "20220301.en")
-# tf_dataset = dataset['train'].to_tf_dataset(columns=['text'], batch_size=1, shuffle=True).prefetch(tf.data.AUTOTUNE)
-# 
-# count = 0
-# for batch in tf_dataset:
-#     count_word_freq(tokenize(batch.numpy()[0].decode('utf-8')), word_freq)
-#     if count % 1000 == 0:
-#         print("Batch", count, "Tokenized")
-#     count += 1
-#     # gc.collect()
-#     # if count > DATASET_SAMPLE_SIZE:
-#     #     break
-# 
-# print("Word frequencies counted")
-# 
-# with open('word_freq.pkl', 'wb') as file:
-#     pickle.dump(word_freq, file)
-# 
-# 
-# vocabulary, token_map = gen_vocab(word_freq)
-# 
-# del word_freq
-# gc.collect()
-# 
-# print(vocabulary)
-# 
-# with open('token_map.pkl', 'wb') as file:
-#     pickle.dump(token_map, file)
-# with open('vocabulary.pkl', 'wb') as file:
-#     pickle.dump(vocabulary, file)
+word_freq = defaultdict(int)
+
+dataset = load_dataset("wikipedia", "20220301.en")
+tf_dataset = dataset['train'].to_tf_dataset(columns=['text'], batch_size=1, shuffle=True).prefetch(tf.data.AUTOTUNE)
+
+count = 0
+for batch in tf_dataset:
+    count_word_freq(tokenize(batch.numpy()[0].decode('utf-8')), word_freq)
+    if count % 1000 == 0:
+        print("Batch", count, "Tokenized")
+    count += 1
+    # gc.collect()
+    # if count > DATASET_SAMPLE_SIZE:
+    #     break
+
+print("Word frequencies counted")
+
+with open('word_freq.pkl', 'wb') as file:
+    pickle.dump(word_freq, file)
+
+
+vocabulary, token_map = gen_vocab(word_freq)
+
+del word_freq
+gc.collect()
+
+print(vocabulary)
+
+with open('token_map.pkl', 'wb') as file:
+    pickle.dump(token_map, file)
+with open('vocabulary.pkl', 'wb') as file:
+    pickle.dump(vocabulary, file)
 
 with open('token_map.pkl', 'rb') as file:
     token_map = pickle.load(file)
